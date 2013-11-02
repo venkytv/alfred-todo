@@ -6,7 +6,7 @@ use Data::Dumper;
 # CUSTOMISE THIS PATH
 my $todotxt = '/usr/local/bin/todo.sh';
 
-my $debug = 0;
+my $debug = 1;
 $todotxt .= " -d " . $ENV{HOME} . '/tmp/todo.cfg' if $debug;
 my $idfilter = 0;
 
@@ -241,7 +241,7 @@ if ($comm =~ /^(?:p|pr|pri)$/) {
 (my $desc = $arg) =~ s/^./\U$&/;
 pushin(add([{ desc => $desc }])) if not $idfilter;
 
-if ($desc =~ /(.*?)\s+([\+\@]\w+)$/) {
+if ($desc =~ /(.*?)\s+([\+\@]\w*)$/) {
     debug "Trying to autocomplete known projects/contexts for $2";
     my $prefix = $1;
     my $projprefix = $2;
