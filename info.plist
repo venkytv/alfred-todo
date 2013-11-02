@@ -146,10 +146,7 @@
 	<key>readme</key>
 	<string>An Alfred v2 Workflow Interface to Todo.txt (http://todotxt.com/)
 
-Icons are from Leo Reynolds's Alphabet Mosaic here:
-http://www.flickr.com/photos/lwr/168967620/
-
-Some icons also from here:
+Icons from here:
 http://en.wikipedia.org/wiki/OCR-A_font</string>
 	<key>uidata</key>
 	<dict>
