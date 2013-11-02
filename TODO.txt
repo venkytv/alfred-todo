@@ -1,0 +1,6 @@
+Sat Nov  2 04:19:15 CET 2013
+
+- Allow setting priority while adding
+     !<priority>    -- Only ![a-zA-Z]
+- List projects and allow listing by projects
+- todo +<project> -- List tasks in project
