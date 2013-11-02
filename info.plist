@@ -110,7 +110,7 @@
 				<key>keyword</key>
 				<string>t</string>
 				<key>script</key>
-				<string>perl todo.pl {query} 2&gt;/tmp/todo.err</string>
+				<string>perl todo.pl {query}</string>
 				<key>title</key>
 				<string>Manage todo.txt actions</string>
 				<key>type</key>
