@@ -7,10 +7,18 @@ my $todotxt = '/usr/local/bin/todo.sh';
 my $debug = 0;
 my $debug_todo_conf = '';
 my $disable_smart_uppercase = 0;
+my $fancy_icons = 0;
+my $icondir = 'icons';
+
 my $idfilter = 0;
 my $config = $ENV{HOME} . '/.alfred-todo.conf';
 my %config = ();
 my @out = ();
+
+sub debug {
+    return if not $debug;
+    print STDERR 'DEBUG: ', @_, "\n";
+}
 
 sub loadconf($) {
     my $force = shift;
@@ -20,14 +28,17 @@ sub loadconf($) {
         open(CONF, '>', $config) or die "Unable to create file: $config";
         print CONF <<EOF;
 ##                              ##
-## ALFRED-TODO.CONF:VERSION=1.0 ##
+## ALFRED-TODO.CONF:VERSION=1.1 ##
 ##                              ##
 
 # Path to the todo_txt binary
 #TODO_TXT = /usr/local/bin/todo.sh
 
-# Disable automatic uppercasing of first letter in new task
+# Uncomment to disable automatic uppercasing of first letters in new tasks
 #DISABLE_SMART_UPPERCASE = 1
+
+# Uncomment to enable fancy icons. The default is to use simple icons.
+#FANCY_ICONS = 1
 
 EOF
         close CONF;
@@ -41,12 +52,17 @@ EOF
     close CONF;
 }
 
+my $__filecheck = 0;
 sub getconf($;%) {
     my ($key, $p) = @_;
+    debug "Trying to get config parameter: $key";
     my $errmsg = $p->{errmsg};
     my $force = $p->{force};
     if (not exists $config{$key}) {
-        # Try loading the config file
+        # Try loading the config file if not loaded yet
+        return '' if $__filecheck and not $force and not $errmsg;
+        debug "Trying to load config file";
+        $__filecheck = 1;
         loadconf($force || $errmsg);
     }
     if (not exists $config{$key}) {
@@ -62,11 +78,6 @@ sub getconf($;%) {
         $config{$key} = $ENV{HOME} . '/' . $1;
     }
     return $config{$key};
-}
-
-sub debug {
-    return if not $debug;
-    print STDERR 'DEBUG: ', @_, "\n";
 }
 
 sub getlist {
@@ -158,9 +169,9 @@ sub geticon($) {
     my $pri = shift;
     if ($pri) {
         $pri = uc $pri;
-        return "icons/$pri.png";
+        return "$icondir/$pri.png";
     } else {
-        return 'icons/NONE.png';
+        return "$icondir/NONE.png";
     }
 }
 
@@ -174,7 +185,7 @@ my $output_gen = {
                 arg => $comm,
                 title => $item->{desc},
                 subtitle => 'Add Task',
-                icon => 'icons/ADD.png',
+                icon => "$icondir/ADD.png",
                 valid => $valid,
                 autocomplete => $autocomplete,
             });
@@ -198,7 +209,7 @@ my $output_gen = {
                 arg => $comm,
                 title => "[$id] " . $item->{desc},
                 subtitle => "Set Priority to ...",
-                icon => 'icons/SET.png',
+                icon => "$icondir/SET.png",
                 valid => 'NO',
                 autocomplete => 'pri ' . $item->{id} . ' ',
             });
@@ -283,6 +294,8 @@ $debug = 0 if not $debug;
 $todotxt .= " -d $debug_todo_conf" if $debug and $debug_todo_conf;
 
 $disable_smart_uppercase = getconf('DISABLE_SMART_UPPERCASE');
+$fancy_icons = getconf('FANCY_ICONS');
+$icondir .= '/fancy' if $fancy_icons;
 
 my $arg = join(' ', @ARGV);
 debug "Command: $0 $arg";
