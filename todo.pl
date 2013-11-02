@@ -3,14 +3,66 @@
 use strict;
 use Data::Dumper;
 
-# CUSTOMISE THIS PATH
 my $todotxt = '/usr/local/bin/todo.sh';
-
 my $debug = 0;
-$todotxt .= " -d " . $ENV{HOME} . '/tmp/todo.cfg' if $debug;
+my $debug_todo_conf = '';
+my $disable_smart_uppercase = 0;
 my $idfilter = 0;
-
+my $config = $ENV{HOME} . '/.alfred-todo.conf';
+my %config = ();
 my @out = ();
+
+sub loadconf($) {
+    my $force = shift;
+    if (not -f $config) {
+        return () if not $force;
+        print STDERR "Creating config file: $config\n";
+        open(CONF, '>', $config) or die "Unable to create file: $config";
+        print CONF <<EOF;
+##                              ##
+## ALFRED-TODO.CONF:VERSION=1.0 ##
+##                              ##
+
+# Path to the todo_txt binary
+#TODO_TXT = /usr/local/bin/todo.sh
+
+# Disable automatic uppercasing of first letter in new task
+#DISABLE_SMART_UPPERCASE = 1
+
+EOF
+        close CONF;
+        return ();
+    }
+    open(CONF, $config) or die "Unable to open config file: $config";
+    while (<CONF>) {
+        next if not /^\s*(\w+?)\s*=\s*(.+?)\s*$/;
+        $config{$1} = $2;
+    }
+    close CONF;
+}
+
+sub getconf($;%) {
+    my ($key, $p) = @_;
+    my $errmsg = $p->{errmsg};
+    my $force = $p->{force};
+    if (not exists $config{$key}) {
+        # Try loading the config file
+        loadconf($force || $errmsg);
+    }
+    if (not exists $config{$key}) {
+        if ($errmsg) {
+            # Throw up error in Alfred
+            print geterrxml($errmsg,
+                            "Please fix this in config file: $config");
+            exit 0;
+        }
+        return '';
+    }
+    if ($config{$key} =~ m#^~/(.*)#) {
+        $config{$key} = $ENV{HOME} . '/' . $1;
+    }
+    return $config{$key};
+}
 
 sub debug {
     return if not $debug;
@@ -86,6 +138,20 @@ sub getxml($) {
         <icon>$icon</icon>
     </item>
 XML
+}
+
+sub geterrxml($$) {
+    my ($title, $subtitle) = @_;
+    return <<ERRXML;
+<?xml version="1.0"?>
+<items>
+<item valid="NO">
+  <title>$title</title>
+  <subtitle>$subtitle</subtitle>
+  <icon>erricon.png</icon>
+</item>
+<items>
+ERRXML
 }
 
 sub geticon($) {
@@ -197,6 +263,26 @@ sub pri($;$) {
 #
 # Main
 #
+$debug = getconf('DEBUG');
+$debug_todo_conf = getconf('DEBUG_TODO_CONF');
+
+my $conf_todotxt = getconf('TODO_TXT');
+$todotxt = $conf_todotxt if $conf_todotxt;
+if (not -x $todotxt) {
+    $todotxt = getconf('TODO_TXT', {
+        errmsg => 'Configure TODO_TXT parameter in config file',
+    });
+    if (not -x $todotxt) {
+        print geterrxml('Fix TODO_TXT parameter in config file',
+                        "Configured path is invalid: $todotxt");
+        exit 0;
+    }
+}
+
+$debug = 0 if not $debug;
+$todotxt .= " -d $debug_todo_conf" if $debug and $debug_todo_conf;
+
+$disable_smart_uppercase = getconf('DISABLE_SMART_UPPERCASE');
 
 my $arg = join(' ', @ARGV);
 debug "Command: $0 $arg";
@@ -206,6 +292,14 @@ if ($arg =~ /^--do\s+(.*)()/ or
         $arg =~ /^(del)\s.*?(\d+)$/) {
     debug "Performing action: $todotxt -f $1 $2";
     system("$todotxt -f $1 $2");
+    exit 0;
+}
+
+# If a "--create-conf" command, create config file
+if ($arg =~ /^--create-conf/) {
+    loadconf(1);
+    print geterrxml('Config File Created',
+                    "Config file available here: $config");
     exit 0;
 }
 
@@ -242,7 +336,8 @@ if ($comm =~ /^(?:p|pr|pri)$/) {
 }
 
 # Last resort -- new task(s)
-(my $desc = $arg) =~ s/^./\U$&/;
+my $desc = $arg;
+$desc =~ s/^./\U$&/ unless $disable_smart_uppercase;
 pushin(add([{ desc => $desc }])) if not $idfilter;
 
 if ($desc =~ /(.*?)\s+([\+\@]\w*)$/) {
