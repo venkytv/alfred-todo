@@ -44,6 +44,27 @@ sub getlist {
     return \@out;
 }
 
+sub getcompletions($) {
+    my $prefix = shift;
+    my $type = substr($prefix, 0, 1);
+    my %comms = (
+        '+' => 'lsprj',
+        '@' => 'lsc',
+    );
+    return () if not exists $comms{$type};
+    my $comm = $todotxt . ' ' . $comms{$type};
+    my $projre = qr/^\Q$prefix\E/;
+    my @out = ();
+    if (open(COMM, "$comm |")) {
+        while (<COMM>) {
+            chomp;
+            push(@out,$_) if /$projre/;
+        }
+        close COMM;
+    }
+    return @out;
+}
+
 sub pushin($) {
     my $listref = shift;
     push(@out, @$listref);
@@ -81,11 +102,15 @@ my $output_gen = {
     'add' => sub {
         my $item = shift;
         my $comm = '--do add ' . $item->{desc};
+        my $valid = ($item->{valid} ? $item->{valid} : 'YES');
+        my $autocomplete = ($item->{autocomplete} ? $item->{autocomplete} : '');
         return getxml({
                 arg => $comm,
                 title => $item->{desc},
                 subtitle => 'Add Task',
                 icon => 'icons/ADD.png',
+                valid => $valid,
+                autocomplete => $autocomplete,
             });
     },
     'do' => sub {
@@ -214,8 +239,20 @@ if ($comm =~ /^(?:p|pr|pri)$/) {
 
 # Last resort -- new task(s)
 (my $desc = $arg) =~ s/^./\U$&/;
-debug "ID filter: $idfilter";
 pushin(add([{ desc => $desc }])) if not $idfilter;
+
+if ($desc =~ /(.*?)\s+([\+\@]\w+)$/) {
+    debug "Trying to autocomplete known projects/contexts for $2";
+    my $prefix = $1;
+    my $projprefix = $2;
+    foreach my $proj (getcompletions($projprefix)) {
+        pushin(add([{
+                        desc => "$prefix $proj",
+                        valid => 'NO',
+                        autocomplete => "$prefix $proj ",
+                    }]));
+    }
+}
 
 END {
     output(\@out) if @out;
