@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>bundleid</key>
+	<string>com.duh-uh.todotxt</string>
+	<key>connections</key>
+	<dict>
+		<key>00CBDE4A-130F-4EF2-9ECA-3A0067A23DC3</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>ECE4E4F7-E006-401A-94C7-CCCBB06ABF2E</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>D76C31EC-7992-4EE9-B491-56A032C6E02E</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>ECE4E4F7-E006-401A-94C7-CCCBB06ABF2E</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>EF270C14-6C6A-4436-BB38-6B075B2217B0</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>00CBDE4A-130F-4EF2-9ECA-3A0067A23DC3</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>D76C31EC-7992-4EE9-B491-56A032C6E02E</string>
+				<key>modifiers</key>
+				<integer>262144</integer>
+				<key>modifiersubtext</key>
+				<string>Delete Task</string>
+			</dict>
+		</array>
+	</dict>
+	<key>createdby</key>
+	<string>Venky TV</string>
+	<key>description</key>
+	<string>Manage TODO lists using todo.txt</string>
+	<key>disabled</key>
+	<false/>
+	<key>name</key>
+	<string>TODO.TXT</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>lastpathcomponent</key>
+				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<false/>
+				<key>output</key>
+				<integer>0</integer>
+				<key>removeextension</key>
+				<false/>
+				<key>sticky</key>
+				<false/>
+				<key>text</key>
+				<string>{query}</string>
+				<key>title</key>
+				<string>{query}</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.notification</string>
+			<key>uid</key>
+			<string>ECE4E4F7-E006-401A-94C7-CCCBB06ABF2E</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>script</key>
+				<string>perl todo.pl {query}</string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>00CBDE4A-130F-4EF2-9ECA-3A0067A23DC3</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>keyword</key>
+				<string>t</string>
+				<key>script</key>
+				<string>perl todo.pl {query} 2&gt;/tmp/todo.err</string>
+				<key>title</key>
+				<string>Manage todo.txt actions</string>
+				<key>type</key>
+				<integer>0</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>EF270C14-6C6A-4436-BB38-6B075B2217B0</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>script</key>
+				<string>perl todo.pl del {query}</string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>D76C31EC-7992-4EE9-B491-56A032C6E02E</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string>An Alfred v2 Workflow Interface to Todo.txt (http://todotxt.com/)
+
+Icons are from Leo Reynolds's Alphabet Mosaic here:
+http://www.flickr.com/photos/lwr/168967620/
+
+Some icons also from here:
+http://en.wikipedia.org/wiki/OCR-A_font</string>
+	<key>uidata</key>
+	<dict>
+		<key>00CBDE4A-130F-4EF2-9ECA-3A0067A23DC3</key>
+		<dict>
+			<key>ypos</key>
+			<real>10</real>
+		</dict>
+		<key>D76C31EC-7992-4EE9-B491-56A032C6E02E</key>
+		<dict>
+			<key>ypos</key>
+			<real>140</real>
+		</dict>
+		<key>ECE4E4F7-E006-401A-94C7-CCCBB06ABF2E</key>
+		<dict>
+			<key>ypos</key>
+			<real>10</real>
+		</dict>
+		<key>EF270C14-6C6A-4436-BB38-6B075B2217B0</key>
+		<dict>
+			<key>ypos</key>
+			<real>60</real>
+		</dict>
+	</dict>
+	<key>webaddress</key>
+	<string></string>
+</dict>
+</plist>
