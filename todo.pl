@@ -217,6 +217,10 @@ if ($arg =~ /^--pick=(\d+)\s*(.*)/) {
 }
 
 if (not $arg) {
+    pushin(add([{
+                    desc => 'Just keep typing to add a new TODO task',
+                    valid => 'NO',
+                }]));
     pushin(done(getlist()));
     exit 0;
 }
