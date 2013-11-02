@@ -6,7 +6,7 @@ use Data::Dumper;
 # CUSTOMISE THIS PATH
 my $todotxt = '/usr/local/bin/todo.sh';
 
-my $debug = 1;
+my $debug = 0;
 $todotxt .= " -d " . $ENV{HOME} . '/tmp/todo.cfg' if $debug;
 my $idfilter = 0;
 
