@@ -9,6 +9,7 @@ my $debug_todo_conf = '';
 my $disable_smart_uppercase = 0;
 my $fancy_icons = 0;
 my $icondir = 'icons';
+my $confmsg = 'Configure the workflow';
 
 my $idfilter = 0;
 my $config = $ENV{HOME} . '/.alfred-todo.conf';
@@ -228,7 +229,7 @@ my $output_gen = {
     'conf' => sub {
         return getxml({
                 arg => '--create-conf',
-                title => 'Configure the workflow',
+                title => $confmsg,
                 subtitle => "Open config file: $config",
                 icon => "$icondir/NONE.png",
             });
@@ -340,12 +341,12 @@ if (not $arg) {
     exit 0;
 }
 
-my ($comm, $rest) = split(' ', $arg, 2);
-
-if ($comm =~ /^conf/) {
+if ($arg =~ /^conf/i and $confmsg =~ /\Q$arg\E/i) {
     debug "Including configure action";
     pushin([{ action => 'conf' }]);
 }
+
+my ($comm, $rest) = split(' ', $arg, 2);
 
 if ($comm =~ /^(?:p|pr|pri)$/) {
     my $pri = '';
