@@ -225,6 +225,14 @@ my $output_gen = {
                 icon => geticon($item->{newpri}),
             });
     },
+    'conf' => sub {
+        return getxml({
+                arg => '--create-conf',
+                title => 'Configure the workflow',
+                subtitle => "Open config file: $config",
+                icon => "$icondir/NONE.png",
+            });
+    },
 };
 
 sub output($) {
@@ -311,8 +319,8 @@ if ($arg =~ /^--do\s+(.*)()/ or
 # If a "--create-conf" command, create config file
 if ($arg =~ /^--create-conf/) {
     loadconf(1);
-    print geterrxml('Config File Created',
-                    "Config file available here: $config");
+    debug "Creating/opening config file";
+    system("open -a /Applications/TextEdit.app $config");
     exit 0;
 }
 
@@ -333,6 +341,12 @@ if (not $arg) {
 }
 
 my ($comm, $rest) = split(' ', $arg, 2);
+
+if ($comm =~ /^conf/) {
+    debug "Including configure action";
+    pushin([{ action => 'conf' }]);
+}
+
 if ($comm =~ /^(?:p|pr|pri)$/) {
     my $pri = '';
     debug "Potential priority change: $rest" if $rest;
