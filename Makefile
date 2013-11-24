@@ -11,3 +11,9 @@ OUTFILE = Alfred-TODO.alfredworkflow
 $(OUTFILE): $(INFILES)
 	$(RM) $(OUTFILE)
 	zip $@ $(INFILES)
+
+install: $(OUTFILE)
+	open $(OUTFILE)
+
+clean:
+	$(RM) $(OUTFILE)
