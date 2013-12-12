@@ -16,10 +16,17 @@ Basic usage -- type the keyword (default: 't') followed by the text of the todo
 item you want to add or mark as done.  With an existing task, hold down the
 "Control" key to delete the task instead of marking it as done.
 
+![Add Task](/screenshots/add-task.png?raw=true)
+![Mark as Done](/screenshots/mark-as-done.png?raw=true)
+
 You can change the priority of a todo item by typing "t p " followed by the text
 of the todo or its ID and ending with a single alphabet which will be the new
 priority.
 
+![Reprioritise](/screenshots/reprioritise-alt.png?raw=true)
+
 A shortcut for setting the priority while adding a new task -- add the priority
 preceded by a "!" to the end of the todo.
-For instance: "t New high prioroty todo !a"
+
+![Add Prioritised Task](/screenshots/add-prioritised-task.png?raw=true)
+![Reprioritise](/screenshots/reprioritise.png?raw=true)
