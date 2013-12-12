@@ -179,13 +179,16 @@ sub geticon($) {
 my $output_gen = {
     'add' => sub {
         my $item = shift;
-        my $comm = '--do add ' . $item->{desc};
+        my $comm = ($item->{pri} ? "--do addpri $item->{pri} " : '--do add ')
+            . $item->{desc};
         my $valid = ($item->{valid} ? $item->{valid} : 'YES');
         my $autocomplete = ($item->{autocomplete} ? $item->{autocomplete} : '');
+        my $subtitle = "Add Task"
+            . ($item->{pri} ? ' with Priority (' . uc($item->{pri}) . ')' : '');
         return getxml({
                 arg => $comm,
                 title => $item->{desc},
-                subtitle => 'Add Task',
+                subtitle => $subtitle,
                 icon => "$icondir/ADD.png",
                 valid => $valid,
                 autocomplete => $autocomplete,
@@ -310,10 +313,28 @@ my $arg = join(' ', @ARGV);
 debug "Command: $0 $arg";
 
 # If a "--do" command, perform action
-if ($arg =~ /^--do\s+(.*)()/ or
+if ($arg =~ /^--do\s+(.*?)\s+(.*)/ or
         $arg =~ /^(del)\s.*?(\d+)$/) {
-    debug "Performing action: $todotxt -f $1 $2";
-    system("$todotxt -f $1 $2");
+    my $act = $1;
+    my $param = $2;
+    my $pri;
+    if ($act eq 'addpri') {
+        $act = 'add';
+        ($pri, $param) = split(' ', $param, 2);
+    }
+    debug "Performing action: $todotxt -f $act $param";
+    my $out = `$todotxt -f $act $param`;
+    if (not $pri) {
+        print $out;
+        exit 0;
+    }
+    if ($out =~ /^(\d+)\s/) {
+        my $id = $1;
+        debug "Performing action: $todotxt -f pri $id $pri";
+        system("$todotxt -f pri $id $pri");
+    } else {
+        print "Failed to set priority. $out";
+    }
     exit 0;
 }
 
@@ -358,6 +379,11 @@ if ($comm =~ /^(?:p|pr|pri)$/) {
     }
     $idfilter = $1 if $rest and $rest =~ /^\s*(\d+)\s*$/;
     pushin(pri(getlist(($idfilter ? '' : $rest)), $pri));
+} elsif ($rest =~ /(.*)\!([a-z]?)$/i) {
+    $rest = "$comm $1";
+    my $pri = $2;
+    debug "Potential priority change: $pri";
+    pushin(pri(getlist($rest), $pri));
 } else {
     debug "Adding all tasks having the term: '$arg'";
     pushin(done(getlist($arg)));
@@ -366,7 +392,12 @@ if ($comm =~ /^(?:p|pr|pri)$/) {
 # Last resort -- new task(s)
 my $desc = $arg;
 $desc =~ s/^./\U$&/ unless $disable_smart_uppercase;
-pushin(add([{ desc => $desc }])) if not $idfilter;
+if (not $idfilter) {
+    if ($desc =~ /(.*?)\s+\!([a-zA-Z])$/) {
+        pushin(add([{ desc => $1, pri => $2 }]));
+    }
+    pushin(add([{ desc => $desc }]));
+}
 
 if ($desc =~ /(.*?)\s+([\+\@]\w*)$/) {
     debug "Trying to autocomplete known projects/contexts for $2";
